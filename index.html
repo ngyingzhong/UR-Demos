@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bybit · Swiss IBAN Activation</title>
+  <style>
+    /* ============================================================
+       GLOBAL RESET & BASE
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #060809;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: #fff;
+    }
+
+    /* ============================================================
+       PHONE SHELL — 390px wide, scrollable
+    ============================================================ */
+    #phone {
+      width: 390px;
+      min-height: 844px;
+      background: #0B0E11;
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.07);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ============================================================
+       STATUS BAR (cosmetic)
+    ============================================================ */
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 28px 0;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.85);
+      flex-shrink: 0;
+    }
+    .status-bar .notch {
+      width: 120px;
+      height: 34px;
+      background: #000;
+      border-radius: 0 0 20px 20px;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .status-icons { display: flex; gap: 6px; align-items: center; }
+
+    /* ============================================================
+       SCREEN WRAPPER
+    ============================================================ */
+    .screen {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 32px;
+    }
+    .screen.active { display: flex; }
+
+    /* ============================================================
+       NAV BAR (top bar with back arrow + title)
+    ============================================================ */
+    .nav-bar {
+      display: flex;
+      align-items: center;
+      padding: 16px 20px 12px;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .back-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.07);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 16px;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.13); }
+    .nav-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    /* ============================================================
+       PROGRESS BAR (screens 2–7)
+    ============================================================ */
+    .progress-wrap {
+      padding: 0 20px 16px;
+      flex-shrink: 0;
+    }
+    .progress-track {
+      height: 4px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #F7A707;
+      border-radius: 2px;
+      transition: width 0.4s ease;
+    }
+    .progress-label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      text-align: right;
+      margin-top: 5px;
+    }
+
+    /* ============================================================
+       COMMON UI COMPONENTS
+    ============================================================ */
+
+    /* Section body padding */
+    .body-pad { padding: 0 20px; }
+
+    /* Amber primary button */
+    .btn-primary {
+      width: 100%;
+      padding: 16px;
+      background: #F7A707;
+      color: #000;
+      font-size: 15px;
+      font-weight: 700;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      letter-spacing: 0.2px;
+    }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-primary:active { transform: scale(0.98); }
+
+    /* Outlined secondary button */
+    .btn-secondary {
+      width: 100%;
+      padding: 15px;
+      background: transparent;
+      color: #F7A707;
+      font-size: 15px;
+      font-weight: 600;
+      border: 1.5px solid #F7A707;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 10px;
+      letter-spacing: 0.2px;
+    }
+    .btn-secondary:hover { background: rgba(247,167,7,0.07); }
+
+    /* Card */
+    .card {
+      background: #161A1F;
+      border-radius: 16px;
+      padding: 18px;
+      margin: 0 20px 14px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    /* Large heading */
+    .h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.25;
+    }
+
+    /* Subtext */
+    .sub {
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.55;
+    }
+
+    /* Amber badge */
+    .badge-orange {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(247,90,7,0.15);
+      color: #F75A07;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(247,90,7,0.3);
+      letter-spacing: 0.4px;
+    }
+    .badge-green {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(22,199,132,0.15);
+      color: #16C784;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(22,199,132,0.3);
+      letter-spacing: 0.4px;
+    }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+      margin: 14px 0;
+    }
+
+    /* Footer */
+    .fiat-footer {
+      text-align: center;
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+      margin-top: 8px;
+      padding: 0 20px;
+    }
+    .fiat-footer span { color: rgba(255,255,255,0.5); }
+
+    /* ============================================================
+       SCREEN 0 — BYBIT HOME
+    ============================================================ */
+    #s0 .home-header {
+      padding: 16px 20px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    #s0 .bybit-logo {
+      font-size: 20px;
+      font-weight: 800;
+      color: #F7A707;
+      letter-spacing: -0.5px;
+    }
+    #s0 .bybit-logo span { color: #fff; }
+    #s0 .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #F7A707, #e07c00);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #000;
+    }
+    /* Wallet balance card */
+    #s0 .wallet-card {
+      margin: 0 20px 16px;
+      background: linear-gradient(135deg, #1A1E24, #222830);
+      border-radius: 20px;
+      padding: 22px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    #s0 .wallet-label { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+    #s0 .wallet-amount { font-size: 32px; font-weight: 700; color: #fff; letter-spacing: -1px; }
+    #s0 .wallet-amount span { font-size: 16px; color: rgba(255,255,255,0.5); margin-right: 4px; }
+    #s0 .wallet-change { font-size: 12px; color: #16C784; margin-top: 3px; }
+    #s0 .wallet-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    #s0 .wallet-action-btn {
+      flex: 1;
+      padding: 10px;
+      background: rgba(255,255,255,0.07);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    #s0 .wallet-action-btn .icon { font-size: 18px; }
+    /* IBAN activation banner */
+    #s0 .iban-banner {
+      margin: 0 20px 16px;
+      background: linear-gradient(135deg, rgba(247,167,7,0.12), rgba(247,167,7,0.05));
+      border: 1px solid rgba(247,167,7,0.3);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    #s0 .iban-banner-icon {
+      width: 44px;
+      height: 44px;
+      background: rgba(247,167,7,0.15);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    #s0 .iban-banner-text .title { font-size: 14px; font-weight: 700; color: #fff; }
+    #s0 .iban-banner-text .desc { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+    #s0 .iban-banner-arrow {
+      margin-left: auto;
+      color: #F7A707;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    /* Quick stats row */
+    #s0 .stats-row {
+      display: flex;
+      gap: 10px;
+      padding: 0 20px;
+      margin-bottom: 16px;
+    }
+    #s0 .stat-card {
+      flex: 1;
+      background: #161A1F;
+      border-radius: 12px;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    #s0 .stat-label { font-size: 11px; color: rgba(255,255,255,0.4); }
+    #s0 .stat-value { font-size: 15px; font-weight: 700; color: #fff; margin-top: 2px; }
+
+    /* ============================================================
+       SCREEN 1 — IBAN ASSIGNED (PRE-KYC)
+    ============================================================ */
+    #s1 .iban-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 20px 20px;
+      text-align: center;
+    }
+    #s1 .lock-circle {
+      width: 72px;
+      height: 72px;
+      background: rgba(247,167,7,0.1);
+      border: 2px solid rgba(247,167,7,0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+    #s1 .iban-display {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 2px;
+      margin: 12px 0 8px;
+      font-family: 'Courier New', monospace;
+    }
+    #s1 .iban-card {
+      margin: 0 20px 16px;
+      background: #161A1F;
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    #s1 .iban-card-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    #s1 .iban-card-label { font-size: 12px; color: rgba(255,255,255,0.4); }
+    #s1 .iban-card-val { font-size: 13px; color: #fff; font-weight: 500; }
+
+    /* ============================================================
+       SCREEN 2 — VERIFICATION OVERVIEW
+    ============================================================ */
+    #s2 .overview-step {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    #s2 .overview-step:last-child { border-bottom: none; }
+    #s2 .step-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    #s2 .step-info { flex: 1; }
+    #s2 .step-name { font-size: 14px; font-weight: 600; color: #fff; }
+    #s2 .step-desc { font-size: 12px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+    #s2 .step-pending {
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.06);
+      padding: 3px 9px;
+      border-radius: 20px;
+      flex-shrink: 0;
+    }
+
+    /* ============================================================
+       SCREEN 3 — IDENTITY DOCUMENT
+    ============================================================ */
+    #s3 .radio-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    #s3 .radio-opt {
+      flex: 1;
+      padding: 13px;
+      background: #161A1F;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.6);
+      transition: all 0.15s;
+    }
+    #s3 .radio-opt.selected {
+      border-color: #F7A707;
+      color: #F7A707;
+      background: rgba(247,167,7,0.06);
+    }
+    /* Camera viewfinder */
+    #s3 .viewfinder {
+      width: 100%;
+      aspect-ratio: 3/2;
+      background: #0a0c0e;
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    #s3 .viewfinder-inner {
+      position: absolute;
+      inset: 20px;
+      border: none;
+    }
+    /* Corner markers */
+    #s3 .corner {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-color: #F7A707;
+      border-style: solid;
+    }
+    #s3 .corner.tl { top: 0; left: 0; border-width: 2px 0 0 2px; border-radius: 3px 0 0 0; }
+    #s3 .corner.tr { top: 0; right: 0; border-width: 2px 2px 0 0; border-radius: 0 3px 0 0; }
+    #s3 .corner.bl { bottom: 0; left: 0; border-width: 0 0 2px 2px; border-radius: 0 0 0 3px; }
+    #s3 .corner.br { bottom: 0; right: 0; border-width: 0 2px 2px 0; border-radius: 0 0 3px 0; }
+    /* Scan line animation */
+    #s3 .scan-line {
+      position: absolute;
+      left: 16px; right: 16px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #F7A707, transparent);
+      animation: scanMove 2s ease-in-out infinite;
+      top: 20px;
+    }
+    @keyframes scanMove {
+      0%, 100% { top: 20px; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      50% { top: calc(100% - 20px); }
+    }
+    #s3 .viewfinder-hint {
+      position: absolute;
+      bottom: 10px;
+      left: 0; right: 0;
+      text-align: center;
+      font-size: 11px;
+      color: rgba(255,255,255,0.5);
+    }
+
+    /* ============================================================
+       SCREEN 4 — LIVENESS CHECK
+    ============================================================ */
+    #s4 .face-viewfinder {
+      width: 220px;
+      height: 220px;
+      background: #0a0c0e;
+      border-radius: 50%;
+      position: relative;
+      overflow: hidden;
+      margin: 0 auto 20px;
+      border: 2px solid rgba(247,167,7,0.4);
+      box-shadow: 0 0 0 8px rgba(247,167,7,0.06), 0 0 0 16px rgba(247,167,7,0.03);
+    }
+    #s4 .face-oval {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 130px;
+      height: 170px;
+      border: 2px dashed rgba(247,167,7,0.6);
+      border-radius: 50%;
+    }
+    #s4 .face-dots {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 40px;
+    }
+    /* Animated scanning arc */
+    #s4 .scan-arc {
+      position: absolute;
+      top: 5px; left: 5px; right: 5px; bottom: 5px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      border-top-color: #F7A707;
+      animation: spin 2s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #s4 .tip-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+    }
+    #s4 .tip-row .icon { font-size: 16px; margin-top: 1px; }
+    #s4 .tip-row .text { font-size: 12px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+
+    /* ============================================================
+       SCREEN 5 — PROOF OF ADDRESS
+    ============================================================ */
+    #s5 .location-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 20px 20px 0;
+    }
+    #s5 .pin-icon {
+      width: 80px;
+      height: 80px;
+      background: rgba(247,167,7,0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      margin-bottom: 16px;
+      border: 2px solid rgba(247,167,7,0.2);
+    }
+    #s5 .permission-box {
+      margin: 16px 20px;
+      background: #161A1F;
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    #s5 .permission-box .perm-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 6px; }
+    #s5 .permission-box .perm-sub { font-size: 12px; color: rgba(255,255,255,0.4); line-height: 1.5; }
+
+    /* ============================================================
+       SCREEN 6 — DECLARATION
+    ============================================================ */
+    #s6 .checkbox-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 13px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    #s6 .checkbox-item:last-child { border-bottom: none; }
+    #s6 .check-box {
+      width: 20px;
+      height: 20px;
+      background: #F7A707;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+      font-size: 12px;
+      color: #000;
+      font-weight: 800;
+    }
+    #s6 .check-label { font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.5; }
+    /* OTP section */
+    #s6 .otp-section { margin-top: 16px; }
+    #s6 .otp-hint { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 12px; }
+    #s6 .otp-hint strong { color: rgba(255,255,255,0.7); }
+    #s6 .otp-row {
+      display: flex;
+      gap: 8px;
+    }
+    #s6 .otp-box {
+      flex: 1;
+      height: 50px;
+      background: #161A1F;
+      border: 1.5px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+    #s6 .otp-box.filled { border-color: rgba(247,167,7,0.5); color: #F7A707; }
+    #s6 .otp-box.empty { color: rgba(255,255,255,0.2); }
+
+    /* ============================================================
+       SCREEN 7 — PROCESSING
+    ============================================================ */
+    #s7 {
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .spinner-wrap {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 28px;
+      position: relative;
+    }
+    .spinner-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 4px solid rgba(247,167,7,0.1);
+    }
+    .spinner-arc {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 4px solid transparent;
+      border-top-color: #F7A707;
+      border-right-color: rgba(247,167,7,0.4);
+      animation: spin 1s linear infinite;
+    }
+    #s7 .processing-dots {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin: 14px 0;
+    }
+    #s7 .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #F7A707;
+      animation: dotPulse 1.4s ease-in-out infinite;
+    }
+    #s7 .dot:nth-child(2) { animation-delay: 0.2s; }
+    #s7 .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dotPulse {
+      0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+      40% { opacity: 1; transform: scale(1); }
+    }
+    #s7 .notice-box {
+      background: rgba(255,255,255,0.04);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.6;
+      max-width: 280px;
+      margin: 0 auto;
+    }
+
+    /* ============================================================
+       SCREEN 8 — APPROVED
+    ============================================================ */
+    #s8 .success-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 24px 20px 20px;
+    }
+    #s8 .checkmark-circle {
+      width: 80px;
+      height: 80px;
+      background: rgba(22,199,132,0.15);
+      border: 2px solid rgba(22,199,132,0.4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      margin-bottom: 16px;
+      animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    #s8 .iban-full {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 1.5px;
+      font-family: 'Courier New', monospace;
+      margin: 12px 0 6px;
+    }
+    #s8 .account-card {
+      margin: 0 20px 14px;
+      background: linear-gradient(135deg, #161A1F, #1c2128);
+      border-radius: 16px;
+      padding: 18px;
+      border: 1px solid rgba(22,199,132,0.15);
+    }
+    #s8 .acct-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    #s8 .acct-row:last-child { border-bottom: none; }
+    #s8 .acct-label { font-size: 12px; color: rgba(255,255,255,0.4); }
+    #s8 .acct-val { font-size: 13px; color: #fff; font-weight: 500; text-align: right; max-width: 55%; }
+
+    /* ============================================================
+       BOTTOM NAV (cosmetic on home screen)
+    ============================================================ */
+    #s0 .bottom-nav {
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0 28px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      margin-top: auto;
+      flex-shrink: 0;
+    }
+    #s0 .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      color: rgba(255,255,255,0.35);
+      cursor: pointer;
+    }
+    #s0 .nav-item.active-nav { color: #F7A707; }
+    #s0 .nav-item .nav-icon { font-size: 20px; }
+
+    /* ============================================================
+       ACTIVATION BUTTON (home screen)
+    ============================================================ */
+    #s0 .activate-row {
+      padding: 0 20px 16px;
+    }
+
+    /* ============================================================
+       TIME/ESTIMATE CHIP
+    ============================================================ */
+    .time-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(247,167,7,0.1);
+      color: #F7A707;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(247,167,7,0.25);
+      margin: 8px 0 16px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============================================================
+     PHONE SHELL
+============================================================ -->
+<div id="phone">
+
+  <!-- Cosmetic status bar (shown on all screens) -->
+  <div class="status-bar">
+    <div class="notch"></div>
+    <span style="z-index:1">9:41</span>
+    <div class="status-icons" style="z-index:1">
+      <!-- Signal bars -->
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="white" opacity="0.85">
+        <rect x="0" y="8" width="3" height="4" rx="1"/>
+        <rect x="4.5" y="5" width="3" height="7" rx="1"/>
+        <rect x="9" y="2" width="3" height="10" rx="1"/>
+        <rect x="13.5" y="0" width="3" height="12" rx="1" opacity="0.3"/>
+      </svg>
+      <!-- WiFi -->
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="white" opacity="0.85">
+        <path d="M8 10a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
+        <path d="M4.5 7C5.6 5.9 6.7 5.3 8 5.3s2.4.6 3.5 1.7" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M1.5 4.5C3.3 2.7 5.5 1.8 8 1.8s4.7.9 6.5 2.7" stroke="white" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      </svg>
+      <!-- Battery -->
+      <svg width="22" height="12" viewBox="0 0 22 12" fill="none" opacity="0.85">
+        <rect x="0.5" y="0.5" width="18" height="11" rx="2.5" stroke="white" stroke-opacity="0.6"/>
+        <rect x="2" y="2" width="14" height="8" rx="1.5" fill="white"/>
+        <path d="M19.5 4.5v3a1.5 1.5 0 000-3z" fill="white" opacity="0.6"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ===========================================================
+       SCREEN 0: BYBIT HOME
+  =========================================================== -->
+  <div id="s0" class="screen active">
+
+    <!-- Top bar -->
+    <div class="home-header">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button class="back-btn" style="color:rgba(255,255,255,0.5); font-size:20px;">‹</button>
+        <span style="font-size:16px; font-weight:700;">Funding Account</span>
+      </div>
+      <div style="display:flex; gap:12px; align-items:center;">
+        <span style="font-size:18px; opacity:0.5;">⋮</span>
+      </div>
+    </div>
+
+    <!-- Funding account total balance -->
+    <div class="wallet-card">
+      <div class="wallet-label">Total Funding Balance (USDT)</div>
+      <div class="wallet-amount" style="font-size:28px;">12,847.50</div>
+      <div class="wallet-change">≈ $12,847.50 USD</div>
+      <div class="wallet-actions">
+        <button class="wallet-action-btn"><span class="icon">⬆️</span>Deposit</button>
+        <button class="wallet-action-btn"><span class="icon">⬇️</span>Withdraw</button>
+        <button class="wallet-action-btn"><span class="icon">↔️</span>Transfer</button>
+      </div>
+    </div>
+
+    <!-- Fiat balances section -->
+    <div style="padding: 0 20px; margin-bottom: 8px;">
+      <div style="font-size:13px; font-weight:600; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:12px;">Fiat Balances</div>
+
+      <!-- EUR row -->
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid rgba(255,255,255,0.07);">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:36px; height:36px; border-radius:50%; background:#003399; display:flex; align-items:center; justify-content:center; font-size:16px;">€</div>
+          <div>
+            <div style="font-size:14px; font-weight:600;">EUR</div>
+            <div style="font-size:11px; color:rgba(255,255,255,0.4);">Euro</div>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:14px; font-weight:600;">0.00</div>
+          <div style="font-size:11px; color:rgba(255,255,255,0.4);">≈ $0.00</div>
+        </div>
+      </div>
+
+      <!-- CHF row -->
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid rgba(255,255,255,0.07);">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:36px; height:36px; border-radius:50%; background:#C8102E; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700;">CHF</div>
+          <div>
+            <div style="font-size:14px; font-weight:600;">CHF</div>
+            <div style="font-size:11px; color:rgba(255,255,255,0.4);">Swiss Franc</div>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:14px; font-weight:600;">0.00</div>
+          <div style="font-size:11px; color:rgba(255,255,255,0.4);">≈ $0.00</div>
+        </div>
+      </div>
+
+      <!-- USD row -->
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:14px 0;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:36px; height:36px; border-radius:50%; background:#1a3a2a; display:flex; align-items:center; justify-content:center; font-size:16px;">$</div>
+          <div>
+            <div style="font-size:14px; font-weight:600;">USD</div>
+            <div style="font-size:11px; color:rgba(255,255,255,0.4);">US Dollar</div>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:14px; font-weight:600;">0.00</div>
+          <div style="font-size:11px; color:rgba(255,255,255,0.4);">≈ $0.00</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Swiss IBAN activation banner — main CTA -->
+    <div style="padding: 0 20px;">
+      <div class="iban-banner" style="cursor:pointer; border: 1px solid rgba(247,167,7,0.3); background: rgba(247,167,7,0.08);" onclick="goto(1)">
+        <div class="iban-banner-icon">🏦</div>
+        <div class="iban-banner-text">
+          <div class="title">Activate your Swiss IBAN</div>
+          <div class="desc">Deposit &amp; withdraw EUR, CHF, USD via bank transfer</div>
+        </div>
+        <div class="iban-banner-arrow" style="color:#F7A707;">›</div>
+      </div>
+      <button class="btn-primary" style="margin-top:12px;" onclick="goto(1)">Activate Now</button>
+    </div>
+
+    <!-- Bottom navigation (cosmetic) -->
+    <div class="bottom-nav">
+      <div class="nav-item"><span class="nav-icon">🏠</span>Home</div>
+      <div class="nav-item"><span class="nav-icon">📈</span>Markets</div>
+      <div class="nav-item"><span class="nav-icon">💼</span>Trade</div>
+      <div class="nav-item active-nav"><span class="nav-icon">👛</span>Assets</div>
+      <div class="nav-item"><span class="nav-icon">👤</span>Profile</div>
+    </div>
+  </div><!-- /s0 -->
+
+
+  <!-- ===========================================================
+       SCREEN 1: IBAN ASSIGNED (PRE-KYC)
+  =========================================================== -->
+  <div id="s1" class="screen">
+    <div class="nav-bar">
+      <button class="back-btn" onclick="goto(0)">‹</button>
+      <span class="nav-title">Swiss Bank Account</span>
+    </div>
+
+    <!-- Hero lockup -->
+    <div class="iban-hero">
+      <div class="lock-circle">🔒</div>
+      <div class="badge-orange">⏳ Pending Verification</div>
+      <div class="iban-display">CH** **** **** **** *</div>
+      <p class="sub" style="max-width:260px; margin-top:6px;">
+        Complete identity verification to unlock your account
+      </p>
+    </div>
+
+    <!-- IBAN detail card -->
+    <div class="iban-card">
+      <div class="iban-card-row">
+        <span class="iban-card-label">IBAN</span>
+        <span class="iban-card-val" style="font-family:monospace; letter-spacing:1px;">CH** **** **** **** *</span>
+      </div>
+      <div class="divider"></div>
+      <div class="iban-card-row">
+        <span class="iban-card-label">Bank</span>
+        <span class="iban-card-val">Fiat24</span>
+      </div>
+      <div class="divider"></div>
+      <div class="iban-card-row">
+        <span class="iban-card-label">Status</span>
+        <div class="badge-orange">Locked</div>
+      </div>
+      <div class="divider"></div>
+      <div class="iban-card-row">
+        <span class="iban-card-label">Currencies</span>
+        <span class="iban-card-val">EUR · CHF · USD</span>
+      </div>
+    </div>
+
+    <!-- Verify Now CTA -->
+    <div style="padding: 0 20px; margin-top: 4px;">
+      <button class="btn-primary" onclick="goto(2)">Verify Now</button>
+    </div>
+
+    <div class="fiat-footer" style="margin-top:16px;">
+      <span>Powered by Fiat24 · Swiss Licensed Bank</span>
+    </div>
+  </div><!-- /s1 -->
+
+
+  <!-- ===========================================================
+       SCREEN 2: VERIFICATION OVERVIEW
+  =========================================================== -->
+  <div id="s2" class="screen">
+    <div class="nav-bar">
+      <button class="back-btn" onclick="goto(1)">‹</button>
+      <span class="nav-title">Identity Verification</span>
+    </div>
+
+    <!-- Progress bar: 1/6 steps -->
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" style="width:5%"></div></div>
+      <div class="progress-label">Step 1 of 6</div>
+    </div>
+
+    <div class="body-pad">
+      <div class="h1" style="margin-bottom:6px;">Verify Your Identity</div>
+      <div class="time-chip">⏱ ~2–3 minutes</div>
+      <p class="sub" style="margin-bottom:20px;">
+        We need to verify your identity to comply with Swiss banking regulations. Your data is encrypted and secure.
+      </p>
+
+      <!-- 4-step list -->
+      <div class="card" style="margin: 0 0 16px 0;">
+        <div class="overview-step">
+          <div class="step-icon">🪪</div>
+          <div class="step-info">
+            <div class="step-name">Identity Document</div>
+            <div class="step-desc">Passport or national ID</div>
+          </div>
+          <div class="step-pending">Pending</div>
+        </div>
+        <div class="overview-step">
+          <div class="step-icon">🤳</div>
+          <div class="step-info">
+            <div class="step-name">Liveness Check</div>
+            <div class="step-desc">Short face scan</div>
+          </div>
+          <div class="step-pending">Pending</div>
+        </div>
+        <div class="overview-step">
+          <div class="step-icon">📍</div>
+          <div class="step-info">
+            <div class="step-name">Proof of Address</div>
+            <div class="step-desc">Location confirmation</div>
+          </div>
+          <div class="step-pending">Pending</div>
+        </div>
+        <div class="overview-step">
+          <div class="step-icon">✍️</div>
+          <div class="step-info">
+            <div class="step-name">Declaration</div>
+            <div class="step-desc">Form A + OTP confirmation</div>
+          </div>
+          <div class="step-pending">Pending</div>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="goto(3)">Start Verification</button>
+    </div>
+  </div><!-- /s2 -->
+
+
+  <!-- ===========================================================
+       SCREEN 3: IDENTITY DOCUMENT
+  =========================================================== -->
+  <div id="s3" class="screen">
+    <div class="nav-bar">
+      <button class="back-btn" onclick="goto(2)">‹</button>
+      <span class="nav-title">Identity Document</span>
+    </div>
+
+    <!-- Progress bar: 2/6 -->
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" style="width:20%"></div></div>
+      <div class="progress-label">Step 2 of 6</div>
+    </div>
+
+    <div class="body-pad">
+      <div class="h1" style="margin-bottom:6px;">Scan Your ID</div>
+      <p class="sub" style="margin-bottom:16px;">Select your document type, then scan it with your camera.</p>
+
+      <!-- Document type selector -->
+      <div class="radio-group">
+        <div class="radio-opt selected" id="opt-passport" onclick="selectDoc('passport')">
+          🛂 Passport
+        </div>
+        <div class="radio-opt" id="opt-nid" onclick="selectDoc('nid')">
+          🪪 National ID
+        </div>
+      </div>
+
+      <!-- Camera viewfinder -->
+      <div class="viewfinder">
+        <div class="viewfinder-inner">
+          <div class="corner tl"></div>
+          <div class="corner tr"></div>
+          <div class="corner bl"></div>
+          <div class="corner br"></div>
+        </div>
+        <div class="scan-line"></div>
+        <div class="viewfinder-hint">Align document within frame</div>
+      </div>
+
+      <!-- Hint -->
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:20px; background:rgba(255,255,255,0.04); border-radius:10px; padding:10px 12px;">
+        <span style="font-size:16px;">💡</span>
+        <span class="sub">Place document flat in good lighting</span>
+      </div>
+
+      <button class="btn-primary" onclick="goto(4)">Take Photo</button>
+    </div>
+  </div><!-- /s3 -->
+
+
+  <!-- ===========================================================
+       SCREEN 4: LIVENESS CHECK
+  =========================================================== -->
+  <div id="s4" class="screen">
+    <div class="nav-bar">
+      <button class="back-btn" onclick="goto(3)">‹</button>
+      <span class="nav-title">Liveness Check</span>
+    </div>
+
+    <!-- Progress bar: 3/6 -->
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" style="width:40%"></div></div>
+      <div class="progress-label">Step 3 of 6</div>
+    </div>
+
+    <div class="body-pad" style="text-align:center;">
+      <div class="h1" style="margin-bottom:6px;">Face Verification</div>
+      <p class="sub" style="margin-bottom:24px;">Position your face inside the oval. Keep still, then follow the on-screen prompts.</p>
+
+      <!-- Circular camera viewfinder with face oval -->
+      <div class="face-viewfinder">
+        <div class="scan-arc"></div>
+        <div class="face-oval"></div>
+        <!-- Simplified face sketch -->
+        <svg style="position:absolute;top:50%;left:50%;transform:translate(-50%,-48%);opacity:0.18;" width="70" height="80" viewBox="0 0 70 80">
+          <ellipse cx="35" cy="38" rx="28" ry="34" fill="white"/>
+          <ellipse cx="24" cy="32" rx="5" ry="6" fill="#0a0c0e"/>
+          <ellipse cx="46" cy="32" rx="5" ry="6" fill="#0a0c0e"/>
+          <path d="M24 52 Q35 60 46 52" stroke="#0a0c0e" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <!-- Tips -->
+      <div class="tip-row" style="text-align:left;">
+        <span class="icon">👁️</span>
+        <span class="text">Look directly at camera and slowly turn your head when prompted</span>
+      </div>
+      <div class="tip-row" style="text-align:left;">
+        <span class="icon">💡</span>
+        <span class="text">Ensure your face is well-lit with no strong shadows</span>
+      </div>
+      <div class="tip-row" style="text-align:left; margin-bottom:20px;">
+        <span class="icon">🚫</span>
+        <span class="text">Remove glasses, hats, or face coverings</span>
+      </div>
+
+      <button class="btn-primary" onclick="goto(5)">I'm Ready</button>
+    </div>
+  </div><!-- /s4 -->
+
+
+  <!-- ===========================================================
+       SCREEN 5: PROOF OF ADDRESS
+  =========================================================== -->
+  <div id="s5" class="screen">
+    <div class="nav-bar">
+      <button class="back-btn" onclick="goto(4)">‹</button>
+      <span class="nav-title">Proof of Address</span>
+    </div>
+
+    <!-- Progress bar: 4/6 -->
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" style="width:60%"></div></div>
+      <div class="progress-label">Step 4 of 6</div>
+    </div>
+
+    <!-- Hero -->
+    <div class="location-hero">
+      <div class="pin-icon">📍</div>
+      <div class="h1" style="margin-bottom:8px;">Confirm Your Location</div>
+      <p class="sub" style="max-width:270px;">
+        We need to verify your current location to comply with Swiss banking regulations.
+      </p>
+    </div>
+
+    <!-- Permission-style box -->
+    <div class="permission-box">
+      <div class="perm-title">📱 Location Access Request</div>
+      <div class="perm-sub">
+        <strong style="color:rgba(255,255,255,0.7)">Bybit</strong> would like to access your precise location to verify your country of residence. Your location is only used for this verification and is not stored.
+      </div>
+    </div>
+
+    <!-- Info bullets -->
+    <div style="padding:0 20px; margin-bottom:20px;">
+      <div style="display:flex; gap:10px; margin-bottom:8px;">
+        <span style="color:#16C784; flex-shrink:0;">✓</span>
+        <span class="sub">Used only for this verification</span>
+      </div>
+      <div style="display:flex; gap:10px; margin-bottom:8px;">
+        <span style="color:#16C784; flex-shrink:0;">✓</span>
+        <span class="sub">Not stored or shared with third parties</span>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <span style="color:#16C784; flex-shrink:0;">✓</span>
+        <span class="sub">Encrypted in transit</span>
+      </div>
+    </div>
+
+    <!-- CTAs -->
+    <div style="padding:0 20px;">
+      <button class="btn-primary" onclick="goto(6)">Allow Location Access</button>
+      <button class="btn-secondary" onclick="goto(6)">Use Document Instead</button>
+    </div>
+  </div><!-- /s5 -->
+
+
+  <!-- ===========================================================
+       SCREEN 6: FORM A DECLARATION
+  =========================================================== -->
+  <div id="s6" class="screen">
+    <div class="nav-bar">
+      <button class="back-btn" onclick="goto(5)">‹</button>
+      <span class="nav-title">Declaration</span>
+    </div>
+
+    <!-- Progress bar: 5/6 -->
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" style="width:80%"></div></div>
+      <div class="progress-label">Step 5 of 6</div>
+    </div>
+
+    <div class="body-pad">
+      <div class="h1" style="margin-bottom:6px;">Declaration</div>
+      <p class="sub" style="margin-bottom:16px;">
+        Please confirm the following statements as required by Swiss banking regulations (Form A).
+      </p>
+
+      <!-- Checkboxes card -->
+      <div class="card" style="margin:0 0 16px;">
+        <div class="checkbox-item">
+          <div class="check-box">✓</div>
+          <div class="check-label">I am the beneficial owner of funds in this account</div>
+        </div>
+        <div class="checkbox-item">
+          <div class="check-box">✓</div>
+          <div class="check-label">All information provided is accurate and complete</div>
+        </div>
+        <div class="checkbox-item">
+          <div class="check-box">✓</div>
+          <div class="check-label">I understand this account is governed by Swiss banking law</div>
+        </div>
+      </div>
+
+      <!-- OTP section -->
+      <div class="otp-section">
+        <div class="otp-hint">
+          A verification code was sent to <strong>j***@gmail.com</strong>
+        </div>
+        <div class="otp-row">
+          <div class="otp-box filled">4</div>
+          <div class="otp-box filled">2</div>
+          <div class="otp-box filled">7</div>
+          <div class="otp-box filled">8</div>
+          <div class="otp-box empty">–</div>
+          <div class="otp-box empty">–</div>
+        </div>
+        <div style="font-size:12px; color:rgba(255,255,255,0.3); text-align:right; margin-top:8px; cursor:pointer;">
+          Resend code
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:16px 20px 0;">
+      <button class="btn-primary" onclick="goto(7)">Confirm &amp; Submit</button>
+    </div>
+  </div><!-- /s6 -->
+
+
+  <!-- ===========================================================
+       SCREEN 7: PROCESSING
+  =========================================================== -->
+  <div id="s7" class="screen">
+    <!-- No nav bar / back on processing screen — intentional -->
+
+    <!-- Progress bar: 6/6 -->
+    <div class="progress-wrap" style="padding-top:16px;">
+      <div class="progress-track"><div class="progress-fill" style="width:95%"></div></div>
+      <div class="progress-label">Almost there…</div>
+    </div>
+
+    <!-- Centred content -->
+    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;">
+      <!-- Spinner -->
+      <div class="spinner-wrap">
+        <div class="spinner-ring"></div>
+        <div class="spinner-arc"></div>
+      </div>
+
+      <div class="h1" style="margin-bottom:8px; text-align:center;">Verifying Your Identity</div>
+
+      <!-- Animated dots -->
+      <div class="processing-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+
+      <!-- Notice -->
+      <div class="notice-box">
+        This usually takes 2–5 minutes. You can close this screen — we'll notify you when verification is complete.
+      </div>
+    </div>
+  </div><!-- /s7 -->
+
+
+  <!-- ===========================================================
+       SCREEN 8: APPROVED
+  =========================================================== -->
+  <div id="s8" class="screen">
+    <div class="nav-bar">
+      <!-- No back arrow on final success screen — intentional empty back -->
+      <div style="width:36px;"></div>
+      <span class="nav-title">Verification Complete</span>
+    </div>
+
+    <!-- Success hero -->
+    <div class="success-hero">
+      <div class="checkmark-circle">✅</div>
+      <div class="h1" style="margin-bottom:4px;">Identity Verified!</div>
+      <div class="badge-green" style="margin:8px 0;">● Active</div>
+      <p class="sub" style="max-width:260px;">
+        Your Swiss bank account is now fully active and ready to use.
+      </p>
+
+      <!-- Full IBAN display -->
+      <div style="background:#161A1F; border:1px solid rgba(22,199,132,0.2); border-radius:12px; padding:12px 20px; margin-top:14px; width:100%;">
+        <div style="font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:4px;">Your IBAN</div>
+        <div class="iban-full">CH56 0483 5012 3456 7800 9</div>
+        <div style="font-size:11px; color:rgba(22,199,132,0.7); margin-top:2px;">✓ Verified</div>
+      </div>
+    </div>
+
+    <!-- Account details card -->
+    <div class="account-card">
+      <div class="acct-row">
+        <span class="acct-label">Account Holder</span>
+        <span class="acct-val">Alex Chen</span>
+      </div>
+      <div class="acct-row">
+        <span class="acct-label">Bank</span>
+        <span class="acct-val">Fiat24 (SR Saphirstein AG)</span>
+      </div>
+      <div class="acct-row">
+        <span class="acct-label">IBAN</span>
+        <span class="acct-val" style="font-family:monospace; font-size:11px; letter-spacing:0.5px;">CH56 0483 5012 3456 7800 9</span>
+      </div>
+      <div class="acct-row">
+        <span class="acct-label">BIC / SWIFT</span>
+        <span class="acct-val" style="font-family:monospace;">SRSPCHZZ</span>
+      </div>
+      <div class="acct-row">
+        <span class="acct-label">Currencies</span>
+        <span class="acct-val">EUR · CHF · USD</span>
+      </div>
+      <div class="acct-row">
+        <span class="acct-label">Status</span>
+        <div class="badge-green">● Active</div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div style="padding:0 20px 8px;">
+      <button class="btn-primary" onclick="goto(0)">Start Using Your Account</button>
+    </div>
+
+    <div class="fiat-footer" style="margin-top:10px; margin-bottom:4px;">
+      <span>Powered by Fiat24 · Swiss Licensed Bank</span>
+    </div>
+  </div><!-- /s8 -->
+
+</div><!-- /phone -->
+
+
+<!-- ============================================================
+     JAVASCRIPT — Screen navigation & interactions
+============================================================ -->
+<script>
+  /**
+   * goto(n) — Show screen n, hide all others.
+   * Also handles the special auto-advance on screen 7 (Processing).
+   */
+  function goto(n) {
+    // Hide all screens
+    document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+
+    // Show target screen
+    const target = document.getElementById('s' + n);
+    if (!target) return;
+    target.classList.add('active');
+
+    // Scroll to top of phone shell
+    target.scrollTop = 0;
+
+    // Screen 7: auto-advance to screen 8 after 2.5 seconds
+    if (n === 7) {
+      setTimeout(() => goto(8), 2500);
+    }
+  }
+
+  /**
+   * selectDoc(type) — Toggle passport / national ID radio buttons on screen 3.
+   */
+  function selectDoc(type) {
+    document.getElementById('opt-passport').classList.toggle('selected', type === 'passport');
+    document.getElementById('opt-nid').classList.toggle('selected', type === 'nid');
+  }
+</script>
+
+</body>
+</html>
